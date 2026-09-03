@@ -610,6 +610,21 @@ async function startQueenBella() {
                     }
                 } catch (e) {}
 
+                // ==========================================
+                // 💾 AUTO-SAVE OWNER TO data/owner.js
+                // ==========================================
+                try {
+                    const botNumber = QueenBella.user.id.split(':')[0];
+                    // Create data folder if it doesn't exist
+                    if (!fs.existsSync('./data')) {
+                        fs.mkdirSync('./data', { recursive: true });
+                    }
+                    fs.writeFileSync('./data/owner.js', JSON.stringify([botNumber]));
+                    console.log(chalk.green(`✅ Owner saved: ${botNumber}`));
+                } catch (e) {
+                    console.log('Could not save owner:', e.message);
+                }
+
                 // 👇 SEND WELCOME MESSAGE
                 try {
                     const botNumber = QueenBella.user.id.split(':')[0] + '@s.whatsapp.net';
