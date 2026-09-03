@@ -20,12 +20,9 @@ process.env.PUPPETEER_SKIP_DOWNLOAD = 'true';
 process.env.PUPPETEER_SKIP_CHROMIUM_DOWNLOAD = 'true';
 
 // Dependencies
-require('./settings');
 const fs = require('fs');
 const chalk = require('chalk');
 const path = require('path');
-const zlib = require('zlib');
-
 const { handleMessages, handleGroupParticipantUpdate } = require('./main');
 const PhoneNumber = require('awesome-phonenumber');
 const { sleep } = require('./lib/myfunc');
@@ -45,6 +42,9 @@ const NodeCache = require("node-cache");
 const pino = require("pino");
 const readline = require("readline");
 const { rmSync } = require('fs');
+
+// Load settings
+const settings = require('./settings');
 
 // Command loader
 global.commands = new Map();
@@ -82,7 +82,6 @@ function loadCommands() {
 // Store
 const store = require('./lib/lightweight_store');
 store.readFromFile();
-const settings = require('./settings');
 setInterval(() => store.writeToFile(), settings.storeWriteInterval || 10000);
 
 // Processed messages cache
@@ -103,7 +102,7 @@ setInterval(() => {
 }, 30000);
 
 // Global bot identity
-global.botname = settings.botName;
+global.botname = settings.botName || "QUEEN BELLA MD";
 global.themeemoji = "👑";
 
 // Auto-read PM toggle (default: false)
@@ -134,19 +133,19 @@ if (global.alwaysOnline === undefined) {
 // ✅ Auto Status Flags (View & React)
 if (global.autoStatusFlags === undefined) {
     global.autoStatusFlags = {
-        seen: true,   // Auto-view status
-        react: true,  // Auto-react to status
+        seen: true,
+        react: true,
     };
 }
 
 // ✅ Custom Status for typing
 if (global.customStatus === undefined) {
-    global.customStatus = 'composing'; // Default: "typing..."
+    global.customStatus = 'composing';
 }
 
 // ✅ GHOST MODE - Read without any delivery ticks
 if (global.ghostMode === undefined) {
-    global.ghostMode = true; // Default: ON
+    global.ghostMode = true;
 }
 
 // ✅ Anti-Call toggle (default: true)
@@ -495,7 +494,7 @@ async function startQueenBella() {
 
                     // Get the caller's custom message
                     const callMessages = loadCallMessages();
-                    const userMsg = callMessages[call.from] || settings.callMessage || '📞 Call rejected. Please message instead.';
+                    const userMsg = callMessages[call.from] || '📞 Call rejected. Please message instead.';
 
                     // Send message to caller
                     try {
@@ -505,8 +504,8 @@ async function startQueenBella() {
                                 forwardingScore: 999,
                                 isForwarded: true,
                                 forwardedNewsletterMessageInfo: {
-                                    newsletterJid: settings.channelId,
-                                    newsletterName: settings.channelName,
+                                    newsletterJid: settings.channelId || '120363411498601038@newsletter',
+                                    newsletterName: settings.channelName || 'QUEEN BELLA MD',
                                     serverMessageId: 1
                                 }
                             }
@@ -597,8 +596,8 @@ async function startQueenBella() {
                 `));
                 console.log(chalk.magenta.bold(`    [ QUEEN BELLA MD is Online! ]\n`));
                 console.log(chalk.cyan(`< ================================== >`));
-                console.log(chalk.magenta(`👑 BOT NAME  : ${settings.botName}`));
-                console.log(chalk.magenta(`👑 OWNER     : ${settings.botOwner}`));
+                console.log(chalk.magenta(`👑 BOT NAME  : ${settings.botName || 'QUEEN BELLA MD'}`));
+                console.log(chalk.magenta(`👑 OWNER     : ${settings.botOwner || 'RODGERS'}`));
                 console.log(chalk.magenta(`👨‍💻 DEVELOPER : Dev RODGERS`));
                 console.log(chalk.green(`👑 STATUS    : Connected! ✅`));
                 console.log(chalk.cyan(`< ================================== >\n`));
@@ -650,8 +649,8 @@ async function startQueenBella() {
                             forwardingScore: 999,
                             isForwarded: true,
                             forwardedNewsletterMessageInfo: {
-                                newsletterJid: settings.channelId,
-                                newsletterName: settings.channelName,
+                                newsletterJid: settings.channelId || '120363411498601038@newsletter',
+                                newsletterName: settings.channelName || 'QUEEN BELLA MD',
                                 serverMessageId: 1
                             }
                         }
