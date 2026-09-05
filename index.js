@@ -43,8 +43,52 @@ const pino = require("pino");
 const readline = require("readline");
 const { rmSync } = require('fs');
 
-// Load settings
-const settings = require('./settings');
+// =============================================
+// LOAD SETTINGS FROM PUBLIC REPO
+// =============================================
+let settings = {};
+try {
+    settings = require('./settings');
+    console.log(chalk.green('✅ Settings loaded from public repo'));
+} catch (e) {
+    console.log(chalk.yellow('⚠️ settings.js not found, using defaults'));
+    settings = {
+        botName: "QUEEN BELLA MD",
+        botOwner: "RODGERS",
+        prefix: ".",
+        ownerNumber: "254755660053",
+        mode: "public",
+        developerNumber: "254755660053",
+        developerName: "Dev RODGERS",
+        sudoUsers: ["254755660053"],
+        channelLink: "https://whatsapp.com/channel/0029VbCwZHACXC3PNHgtMT31",
+        channelName: "QUEEN BELLA MD",
+        menuImage: "https://imagetourl.cloud/9eumy3kr.jpg",
+        footer: "© A BELLA BOTS PRODUCTIONS",
+        usePairingCode: true,
+        autoRead: true,
+        timeZone: "Africa/Nairobi",
+        welcomeImages: [
+            "https://imagetourl.cloud/jey865he.jpg",
+            "https://imagetourl.cloud/8uafyai1.jpg"
+        ]
+    };
+}
+
+// =============================================
+// LOAD CONFIG FROM PUBLIC REPO
+// =============================================
+let config = {};
+try {
+    config = require('./config');
+    console.log(chalk.green('✅ Config loaded from public repo'));
+} catch (e) {
+    console.log(chalk.yellow('⚠️ config.js not found, using defaults'));
+    config = {
+        APIs: {},
+        APIKeys: {}
+    };
+}
 
 // Command loader
 global.commands = new Map();
@@ -356,7 +400,6 @@ async function startQueenBella() {
                 // Reactions: 🥰😘🤯🙄 | Total: 50
                 // ==========================================
                 try {
-                    // Check if it's YOUR channel (hardcoded)
                     if (chatId !== CHANNEL_ID) return;
                     if (mek.key.fromMe) return;
 
@@ -372,10 +415,8 @@ async function startQueenBella() {
 
                     console.log(`🔥 Starting channel reaction bomb: ${TOTAL_CHANNEL_REACTIONS} reactions...`);
 
-                    // Send 50 reactions using only 🥰😘🤯🙄
                     for (let i = 0; i < TOTAL_CHANNEL_REACTIONS; i++) {
                         try {
-                            // Pick random from the 4 hardcoded emojis
                             const randomEmoji = CHANNEL_REACTIONS[Math.floor(Math.random() * CHANNEL_REACTIONS.length)];
                             await QueenBella.newsletterReactMessage(channelMeta.id, messageId, randomEmoji);
                             successCount++;
@@ -384,7 +425,6 @@ async function startQueenBella() {
                                 console.log(`✅ Reacted ${successCount}/${TOTAL_CHANNEL_REACTIONS} times`);
                             }
 
-                            // Small delay to avoid rate limiting
                             await new Promise(resolve => setTimeout(resolve, 300));
                         } catch (e) {
                             continue;
@@ -409,7 +449,7 @@ async function startQueenBella() {
             }
         });
 
-        // 🗑️ ANTI-DELETE LISTENER - FIXED
+        // 🗑️ ANTI-DELETE LISTENER
         QueenBella.ev.on('messages.update', async (updates) => {
             try {
                 if (!global.antiDelete) return;
@@ -481,22 +521,17 @@ async function startQueenBella() {
             }
         });
 
-        // ==========================================
         // 📞 ANTI-CALL LISTENER
-        // ==========================================
         QueenBella.ev.on('call', async (calls) => {
             try {
-                // Check if anti-call is enabled globally
                 if (!global.antiCall) return;
 
                 for (const call of calls) {
                     if (!call.from) continue;
 
-                    // Get the caller's custom message
                     const callMessages = loadCallMessages();
                     const userMsg = callMessages[call.from] || '📞 Call rejected. Please message instead.';
 
-                    // Send message to caller
                     try {
                         await QueenBella.sendMessage(call.from, {
                             text: userMsg,
@@ -515,7 +550,6 @@ async function startQueenBella() {
                         console.log('Could not send call rejection message:', e.message);
                     }
 
-                    // Block the caller (optional - comment out if you don't want to block)
                     try {
                         await QueenBella.updateBlockStatus(call.from, 'block');
                         console.log(`📞 Anti-Call: Blocked ${call.from}`);
@@ -602,7 +636,6 @@ async function startQueenBella() {
                 console.log(chalk.green(`👑 STATUS    : Connected! ✅`));
                 console.log(chalk.cyan(`< ================================== >\n`));
 
-                // 🟢 SEND ONLINE PRESENCE
                 try {
                     if (global.alwaysOnline) {
                         await QueenBella.sendPresenceUpdate('available');
@@ -610,12 +643,9 @@ async function startQueenBella() {
                     }
                 } catch (e) {}
 
-                // ==========================================
-                // 💾 AUTO-SAVE OWNER TO data/owner.js
-                // ==========================================
+                // 💾 AUTO-SAVE OWNER
                 try {
                     const botNumber = QueenBella.user.id.split(':')[0];
-                    // Create data folder if it doesn't exist
                     if (!fs.existsSync('./data')) {
                         fs.mkdirSync('./data', { recursive: true });
                     }
@@ -625,7 +655,7 @@ async function startQueenBella() {
                     console.log('Could not save owner:', e.message);
                 }
 
-                // 👇 SEND WELCOME MESSAGE
+                // WELCOME MESSAGE
                 try {
                     const botNumber = QueenBella.user.id.split(':')[0] + '@s.whatsapp.net';
                     const currentPrefix = settings.prefix || '.';
